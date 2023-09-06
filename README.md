@@ -10,6 +10,5 @@
 *  MongoDB
 * Mongoose
 
-### [Ссылка на репозиторий]([https://polovnikova-irina.github.io/express-mesto-gha/](https://github.com/polovnikova-irina)https://github.com/polovnikova-irina)
-
+### [Ссылка на репозиторий](https://github.com/polovnikova-irina)
 
