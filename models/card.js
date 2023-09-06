@@ -5,13 +5,13 @@ const cardSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, "Поле должно быть заполнено"],
-      minlength: [2, "минимальная дляна поля - 2"],
-      maxlength: [30, "минимальная дляна поля - 30"],
+      required: true,
+      minlength: 2,
+      maxlength: 30,
     },
     link: {
       type: String,
-      required: [true, "Поле должно быть заполнено"],
+      required: true,
       validate: {
         validator: validator.isURL,
         message: "Поле должно содержать корректную ссылку",
@@ -20,7 +20,7 @@ const cardSchema = new mongoose.Schema(
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-      required: [true, "Поле должно быть заполнено"],
+      required: true,
     },
     likes: [{
       type: mongoose.Schema.Types.ObjectId,
