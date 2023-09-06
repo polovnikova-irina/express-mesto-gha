@@ -34,7 +34,7 @@ module.exports.addCard = async (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   const cardId = req.params.cardId;
-  
+
   if (cardId.length  !== 24) {
     return res.status(400).send({
       message: "Переданы некорректные данные при создании пользователя",
@@ -56,6 +56,12 @@ module.exports.deleteCard = (req, res) => {
 };
 
 module.exports.likeCard = (req, res) => {
+  if (req.params.cardId.length  !== 24) {
+    return res.status(400).send({
+      message: "Переданы некорректные данные при создании пользователя",
+    });
+  }
+
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -77,6 +83,12 @@ module.exports.likeCard = (req, res) => {
 };
 
 module.exports.dislikeCard = (req, res) => {
+  if (req.params.cardId.length  !== 24) {
+    return res.status(400).send({
+      message: "Переданы некорректные данные при создании пользователя",
+    });
+  }
+
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
