@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const mongoose = require('mongoose');
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -11,7 +12,7 @@ module.exports.getUsers = (req, res) => {
 module.exports.getUserById = (req, res) => {
   const userId = req.params.userId;
 
-  if (userId.length !== 24) {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
     return res.status(400).send({
       message: "Переданы некорректные данные при создании пользователя",
     });

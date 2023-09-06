@@ -1,4 +1,5 @@
 const Card = require("../models/card");
+const mongoose = require('mongoose');
 
 module.exports.getCards = (req, res) => {
   Card.find({})
@@ -35,7 +36,7 @@ module.exports.addCard = async (req, res) => {
 module.exports.deleteCard = (req, res) => {
   const cardId = req.params.cardId;
 
-  if (cardId.length  !== 24) {
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
     return res.status(400).send({
       message: "Переданы некорректные данные при создании пользователя",
     });
@@ -56,9 +57,11 @@ module.exports.deleteCard = (req, res) => {
 };
 
 module.exports.likeCard = (req, res) => {
-  if (req.params.cardId.length  !== 24) {
+  const cardId = req.params.cardId;
+
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
     return res.status(400).send({
-      message: "Переданы некорректные данные при создании пользователя",
+      message: "Карточка с указанным _id не найдена",
     });
   }
 
@@ -83,9 +86,11 @@ module.exports.likeCard = (req, res) => {
 };
 
 module.exports.dislikeCard = (req, res) => {
-  if (req.params.cardId.length  !== 24) {
+   const cardId = req.params.cardId;
+
+  if (!mongoose.Types.ObjectId.isValid(cardId)) {
     return res.status(400).send({
-      message: "Переданы некорректные данные при создании пользователя",
+      message: "Карточка с указанным _id не найдена",
     });
   }
 
