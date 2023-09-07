@@ -5,8 +5,6 @@ npm-debug.log*
 
 # Dependency directory
 node_modules
-.github/workflows/
-.eslintrs/
 
 # Optional npm cache directory
 .npm
