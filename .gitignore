@@ -6,6 +6,8 @@ npm-debug.log*
 # Dependency directory
 node_modules
 .eslintrc
+.github
+
 # Optional npm cache directory
 .npm
 
