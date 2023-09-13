@@ -27,7 +27,7 @@ module.exports.getUserById = (req, res) => {
           .status(404)
           .send({ message: "Пользователь по указанному _id не найден" });
       }
-      res.send(user);
+      res.status(200).send(user);
     })
     .catch(() =>
       res
@@ -36,10 +36,16 @@ module.exports.getUserById = (req, res) => {
     );
 };
 
-module.exports.addUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => res.status(201).send(user))
+module.exports.createUser = (req, res) => {
+  const { name, about, avatar, email } = req.body;
+  bcrypt
+    .hash(req.body.password, 10) // хешируем пароль
+    .then((hash) =>
+      User.create({
+        name, about, avatar, email, password: hash,
+      })
+    )
+    .then((user) => res.status(201).send({name: user.name, about: user.about, avatar: user.avatar, email: user.email}))
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: err.message });
@@ -96,18 +102,6 @@ module.exports.editUserAvatar = (req, res) => {
   }
 };
 
-module.exports.createUser = (req, res) => {
-  bcrypt
-    .hash(req.body.password, 10) // хешируем пароль
-    .then((hash) =>
-      User.create({
-        email: req.body.email,
-        password: hash,
-      })
-    )
-    .then((user) => res.send(user))
-    .catch((err) => res.status(400).send(err));
-};
 
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
