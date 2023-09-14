@@ -26,13 +26,13 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate: {
         validator: (v) => isEmail(v),
-        message: 'Неправильный формат почты',
+        message: 'Введите верный email',
       },
     },
     password: {
       type: String,
       required: true,
-      minlength: 8,
+      // minlength: 8,
       select: false,
     }
   },
@@ -53,7 +53,7 @@ userSchema.statics.findUserByCredentials = (email, password) => {
             // хеши не совпали — отклоняем промис
             return Promise.reject(new Error('Неправильные почта или пароль'));
           }
-          
+
           return user;
         });
     });
