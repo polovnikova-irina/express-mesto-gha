@@ -21,7 +21,7 @@ module.exports = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token);
+    payload = jwt.verify(token, 'mesto-key');
   } catch (err) {
     return handleAuthError(res);
   }

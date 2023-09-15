@@ -52,7 +52,7 @@ module.exports.createUser = (req, res) => {
       if (err.name === "ValidationError") {
         res.status(400).send({ message: err.message });
       } else {
-        res.status(500).send({ message: "На сервере произошла ошибка" });
+        res.status(500).send({ error: 'На сервере произошла ошибка', message: err.message });
       }
     });
 };
@@ -110,17 +110,27 @@ module.exports.login = (req, res) => {
 
   return User.findUserByCredentials(email, password)
   .then((user) => {
-    const token = jwt.sign({ _id: user._id }, { expiresIn: '7d' });
+    const token = jwt.sign({ _id: user._id }, 'mesto-key', { expiresIn: '7d' });
      res
      .cookie('token', token, {
       httpOnly: true,
       sameSite: true
      })
-     .send({ message: 'Аутентификация прошла успешно', token });
+    .send(token)
    })
     .catch((err) => {
       res
       .status(401)
       .send({ message: err.message });
     });
+};
+
+module.exports.getUserProfile = (req, res) => {
+  User.findById(req.user._id)
+  .then((user) => res.status(200).send(user))
+  .catch((err) => {
+    res
+    .status(401)
+    .send({ message: err.message });
+  });
 };

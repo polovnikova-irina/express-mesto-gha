@@ -3,10 +3,12 @@ const usersRoute = require("./users");
 const cardsRouter = require("./cards");
 const signupRouter = require("./signup");
 const signinRouter = require("./signin");
+const auth = require('../middlewares/auth');
 
-router.post('/signin', signinRouter);
-router.post('/signup', signupRouter);
+router.use('/signup', signupRouter);
+router.use('/signin', signinRouter);
 
+router.use(auth);
 router.use("/users", usersRoute);
 router.use("/cards", cardsRouter);
 

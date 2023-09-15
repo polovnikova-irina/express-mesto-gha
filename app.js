@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
-const auth = require('./middlewares/auth');
+const { errors } = require('celebrate');
 
 const { PORT = 3000, DB_URL = "mongodb://localhost:27017/mestodb" } =
   process.env;
@@ -17,9 +17,18 @@ mongoose.connect(DB_URL, {
   useUnifiedTopology: true,
 });
 
+app.use("/", require("./routes/index"));
 
 app.use("*", (req, res) => {
   res.status(404).send({ message: "Страница не найдена" });
+});
+
+// обработчики ошибок
+app.use(errors()); // обработчик ошибок celebrate
+
+// централизованный обработчик
+app.use((err, req, res, next) => {
+  res.send({ message: err.message });
 });
 
 
