@@ -26,10 +26,10 @@ app.use("*", (req, res) => {
 // обработчики ошибок
 app.use(errors()); // обработчик ошибок celebrate
 
-// централизованный обработчик
-app.use((err, req, res, next) => {
-  res.send({ message: err.message });
-});
+// // централизованный обработчик
+// app.use((err, req, res, next) => {
+//   res.send({ message: err.message });
+// });
 
 
 app.listen(PORT);
