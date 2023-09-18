@@ -1,7 +1,10 @@
 const User = require("../models/user");
-const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const httpConstants = require('http');
+const BadRequestError = require("../errors/BadRequuestError");
+const NotFoundError = require("../errors/NotFoundError");
+const ConflictError = require("../errors/ConflictError");
 
 module.exports.getUsers = (req, res) => {
   User.find({})
@@ -11,32 +14,25 @@ module.exports.getUsers = (req, res) => {
     );
 };
 
-module.exports.getUserById = (req, res) => {
+module.exports.getUserById = (req, res, next) => {
   const userId = req.params.userId;
-
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return res.status(400).send({
-      message: "Переданы некорректные данные при создании пользователя",
-    });
-  }
-
   User.findById(userId)
+  .orFail()
     .then((user) => {
-      if (!user) {
-        return res
-          .status(404)
-          .send({ message: "Пользователь по указанному _id не найден" });
-      }
-      res.status(200).send(user);
+      res.status(httpConstants.HTTP_STATUS_OK).send(user);
     })
-    .catch(() =>
-      res
-        .status(404)
-        .send({ message: "Пользователь по указанному _id не найден" })
-    );
+    .catch((err) => {
+      if (err.name === "CastError") {
+        next(new BadRequestError("Указан некорректный _id "))
+      } else if (err.name === "DocumentNotFoundError") {
+      next(new NotFoundError("Пользователь по указанному _id не найден"))
+      } else {
+        next(err);
+      }
+})
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const { name, about, avatar, email } = req.body;
   bcrypt
     .hash(req.body.password, 10) // хешируем пароль
@@ -45,69 +41,64 @@ module.exports.createUser = (req, res) => {
         name, about, avatar, email, password: hash,
       })
     )
-    .then((user) => res.status(201).send({
+    .then((user) => res.status(httpConstants.HTTP_STATUS_CREATED).send({
       name: user.name, about: user.about, avatar: user.avatar, _id: user._id, email: user.email
     }))
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({ message: err.message });
+        next(new BadRequestError(err.message));
+      } else if (err.code === 11000) {
+        next(new ConflictError("Пользователь с таким email уже существует"));
       } else {
-        res.status(500).send({ error: 'На сервере произошла ошибка', message: err.message });
+        next(err);
       }
     });
 };
 
-module.exports.editUserData = (req, res) => {
+module.exports.editUserData = (req, res, next) => {
   const { name, about } = req.body;
   const userId = req.user._id;
-  if (userId) {
     User.findByIdAndUpdate(
       userId,
       { name, about },
       { new: true, runValidators: true }
     )
-      .then((user) => res.send(user))
+    .orFail()
+      .then((user) => res.status(httpConstants.HTTP_STATUS_OK).send(user))
       .catch((err) => {
         if (err.name === "ValidationError") {
-          res.status(400).send({ message: err.message });
+          next(new BadRequestError(err.message));
+        } else if (err.name === "DocumentNotFoundError") {
+          next(new NotFoundError("Пользователь по указанному _id не найден"));
         } else {
-          res
-            .status(404)
-            .send({ message: "Пользователь с указанным _id не найден" });
+          next(err);
         }
       });
-  } else {
-    res.status(500).send({ message: "На сервере произошла ошибка" });
-  }
 };
 
-module.exports.editUserAvatar = (req, res) => {
+
+module.exports.editUserAvatar = (req, res, next) => {
   const userId = req.user._id;
-  if (userId) {
     User.findByIdAndUpdate(
       userId,
       { avatar: req.body.avatar },
       { new: true, runValidators: true }
     )
-      .then((user) => res.send(user))
+    .orFail()
+      .then((user) => res.status(httpConstants.HTTP_STATUS_OK).send(user))
       .catch((err) => {
         if (err.name === "ValidationError") {
-          res.status(400).send({ message: err.message });
+          next(new BadRequestError(err.message));
+        } else if (err.name === "DocumentNotFoundError") {
+          next(new NotFoundError("Пользователь по указанному _id не найден"));
         } else {
-          res
-            .status(404)
-            .send({ message: "Запрашиваемый пользователь не найден" });
+          next(err);
         }
       });
-  } else {
-    res.status(500).send({ message: "На сервере произошла ошибка" });
-  }
-};
+    };
 
-
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-
   return User.findUserByCredentials(email, password)
   .then((user) => {
     const token = jwt.sign({ _id: user._id }, 'mesto-key', { expiresIn: '7d' });
@@ -118,19 +109,11 @@ module.exports.login = (req, res) => {
      })
     .send(token)
    })
-    .catch((err) => {
-      res
-      .status(401)
-      .send({ message: err.message });
-    });
+    .catch(next);
 };
 
-module.exports.getUserProfile = (req, res) => {
+module.exports.getUserProfile = (req, res, next) => {
   User.findById(req.user._id)
-  .then((user) => res.status(200).send(user))
-  .catch((err) => {
-    res
-    .status(401)
-    .send({ message: err.message });
-  });
+  .then((user) => (httpConstants.HTTP_STATUS_OK).send(user))
+  .catch(next);
 };

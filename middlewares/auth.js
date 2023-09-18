@@ -1,10 +1,5 @@
 const jwt = require('jsonwebtoken');
-
-const handleAuthError = (res) => {
-  res
-    .status(401)
-    .send({ message: 'Необходима авторизация' });
-};
+const UnauthorizedError = require("../errors/UnauthorizedError");
 
 const extractBearerToken = (header) => {
   return header.replace('Bearer ', '')
@@ -14,7 +9,7 @@ module.exports = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return handleAuthError(res);
+   throw new UnauthorizedError('Неправильные почта или пароль');
   }
 
   const token = extractBearerToken(authorization);
@@ -23,7 +18,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'mesto-key');
   } catch (err) {
-    return handleAuthError(res);
+    throw new UnauthorizedError('Неправильные почта или пароль');
   }
 
   req.user = payload; // записываем пейлоуд в объект запроса
