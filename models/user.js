@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const isEmail = require('validator/lib/isEmail');
 const bcrypt = require('bcryptjs');
 const UnauthorizedError = require("../errors/UnauthorizedError");
-const isURL= require("validator/lib/isURL");
+// const isURL= require("validator/lib/isURL");
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,7 +22,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png",
       validate: {
-        validator: (v) => isURL(v),
+        validator(v) {
+          return /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=,%]+#?$/.test(v);
+        },
+        // validator: (v) => isURL(v),
         message: "Поле должно содержать корректную ссылку",
       },
     },
