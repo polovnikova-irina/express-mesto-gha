@@ -19,7 +19,7 @@ module.exports.getUserById = (req, res, next) => {
   User.findById(userId)
   .orFail()
     .then((user) => {
-      res.status(httpConstants.HTTP_STATUS_OK).send(user);
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -41,7 +41,7 @@ module.exports.createUser = (req, res, next) => {
         name, about, avatar, email, password: hash,
       })
     )
-    .then((user) => res.status(httpConstants.HTTP_STATUS_CREATED).send({
+    .then((user) => res.status(201).send({
       name: user.name, about: user.about, avatar: user.avatar, _id: user._id, email: user.email
     }))
     .catch((err) => {
@@ -107,13 +107,13 @@ module.exports.login = (req, res, next) => {
       httpOnly: true,
       sameSite: true
      })
-    .send(token)
+    .send({ token })
    })
     .catch(next);
 };
 
 module.exports.getUserProfile = (req, res, next) => {
   User.findById(req.user._id)
-  .then((user) => (httpConstants.HTTP_STATUS_OK).send(user))
+  .then((user) => res.status(200).send(user))
   .catch(next);
 };
