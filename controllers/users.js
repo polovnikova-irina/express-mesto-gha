@@ -1,7 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const httpConstants = require('http');
 const BadRequestError = require("../errors/BadRequuestError");
 const NotFoundError = require("../errors/NotFoundError");
 const ConflictError = require("../errors/ConflictError");
@@ -64,13 +63,14 @@ module.exports.editUserData = (req, res, next) => {
       { new: true, runValidators: true }
     )
     .orFail()
-      .then((user) => res.status(httpConstants.HTTP_STATUS_OK).send(user))
+      .then((user) => res.status(200).send(user))
       .catch((err) => {
         if (err.name === "ValidationError") {
           next(new BadRequestError(err.message));
         } else if (err.name === "DocumentNotFoundError") {
           next(new NotFoundError("Пользователь по указанному _id не найден"));
         } else {
+          console.error('Error while updating user data:', err);
           next(err);
         }
       });
@@ -85,7 +85,7 @@ module.exports.editUserAvatar = (req, res, next) => {
       { new: true, runValidators: true }
     )
     .orFail()
-      .then((user) => res.status(httpConstants.HTTP_STATUS_OK).send(user))
+      .then((user) => res.status(200).send(user))
       .catch((err) => {
         if (err.name === "ValidationError") {
           next(new BadRequestError(err.message));

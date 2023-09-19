@@ -1,5 +1,4 @@
 const Card = require("../models/card");
-const httpConstants = require('http');
 const BadRequestError = require("../errors/BadRequuestError");
 const NotFoundError = require("../errors/NotFoundError");
 const ForbiddenError = require("../errors/ForbiddenError");
@@ -7,7 +6,7 @@ const ForbiddenError = require("../errors/ForbiddenError");
 module.exports.getCards = (req, res, next) => {
   Card.find({})
     .populate(["owner", "likes"])
-    .then((cards) => res.status(httpConstants.HTTP_STATUS_OK).send(cards))
+    .then((cards) => res.status(200).send(cards))
     .catch(next)
 };
 
@@ -17,7 +16,7 @@ module.exports.addCard = (req, res, next) => {
   Card.create({ name, link, owner })
   .orFail()
     .then((card) => {
-      res.status(httpConstants.HTTP_STATUS_CREATED).send(card);
+      res.status(201).send(card);
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
@@ -41,7 +40,7 @@ module.exports.deleteCard = (req, res, next) => {
       return Card.findByIdAndRemove(cardId);
     })
     .then(() => {
-      res.status(httpConstants.HTTP_STATUS_OK).send({ message: "Карточка удалена" });
+      res.status(200).send({ message: "Карточка удалена" });
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -63,7 +62,7 @@ module.exports.likeCard = (req, res, next) => {
   .orFail()
     .populate(["owner", "likes"])
     .then((card) => {
-      res.status(httpConstants.HTTP_STATUS_OK).send(card);
+      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === "CastError") {
@@ -85,7 +84,7 @@ module.exports.dislikeCard = (req, res, next) => {
   .orFail()
     .populate(["owner", "likes"])
     .then((card) => {
-      res.status(httpConstants.HTTP_STATUS_OK).send(card);
+      res.status(200).send(card);
     })
     .catch((err) => {
       if (err.name === "CastError") {
