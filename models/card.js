@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
+const isURL= require("validator/lib/isURL");
 
 const cardSchema = new mongoose.Schema(
   {
@@ -12,10 +12,10 @@ const cardSchema = new mongoose.Schema(
     link: {
       type: String,
       required: [true, 'Поле должно быть заполнено'],
-      validate: {
-        validator: validator.isURL,
-        message: "Поле должно содержать корректную ссылку",
-      },
+        validate: {
+          validator: (v) => isURL(v),
+          message: "Поле должно содержать корректную ссылку",
+        },
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
