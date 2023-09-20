@@ -27,9 +27,7 @@ router.post(
       name: Joi.string().required().min(2).max(30),
       link: Joi.string()
         .required()
-        .regex(
-          /^(https?:\/\/)?(www\.)?[a-zA-Z0-9._~:/?#[\]@!$&'()*+,;=,%-]+#?$/
-        ),
+        .uri(),
     }),
   }),
   addCard
