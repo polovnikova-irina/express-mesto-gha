@@ -4,12 +4,15 @@ const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 const bodyParser = require("body-parser");
 const { errors } = require('celebrate');
+const morgan = require('morgan');
 const handleError = require('./middlewares/handleError');
 
 const { PORT = 3000, DB_URL = "mongodb://localhost:27017/mestodb" } =
   process.env;
 
 const app = express();
+
+app.use(morgan('dev'));
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,

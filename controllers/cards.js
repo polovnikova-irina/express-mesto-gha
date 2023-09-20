@@ -14,8 +14,10 @@ module.exports.addCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
-  .orFail()
     .then((card) => {
+      if (!card) {
+        throw new NotFoundError("Некорректный _id карточки");
+      }
       res.status(201).send(card);
     })
     .catch((err) => {
@@ -32,8 +34,10 @@ module.exports.addCard = (req, res, next) => {
 module.exports.deleteCard = (req, res, next) => {
   const cardId = req.params.cardId;
   Card.findById(cardId)
-  .orFail()
     .then((card) => {
+      if (!card) {
+        throw new NotFoundError("Карточка по указанному _id не найдена");
+      }
       if (card.owner.toString() !== req.user._id) {
         throw new ForbiddenError("Карточка другого пользователя")
       }
@@ -59,9 +63,11 @@ module.exports.likeCard = (req, res, next) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-  .orFail()
     .populate(["owner", "likes"])
     .then((card) => {
+      if (!card) {
+        throw new NotFoundError("Карточка по указанному _id не найдена");
+      }
       res.status(200).send(card);
     })
     .catch((err) => {
@@ -81,9 +87,11 @@ module.exports.dislikeCard = (req, res, next) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-  .orFail()
     .populate(["owner", "likes"])
     .then((card) => {
+      if (!card) {
+        throw new NotFoundError("Карточка по указанному _id не найдена");
+      }
       res.status(200).send(card);
     })
     .catch((err) => {
