@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const { errors } = require('celebrate');
 const morgan = require('morgan');
 const handleError = require('./middlewares/handleError');
+require('dotenv').config();
 
 const { PORT = 3000, DB_URL = "mongodb://localhost:27017/mestodb" } =
   process.env;
